@@ -1,0 +1,19 @@
+#wrapper {
+     width: 1255px;
+     margin: 0 auto;
+}
+#leftcolumn, #rightcolumn {
+    border: 1px solid white;
+    float: left;
+    min-height: 500px;
+}
+#leftcolumn {
+     width: 500px;
+}
+#rightcolumn {
+     width: 750px;
+}
+
+.label {
+    width: 228px;
+}

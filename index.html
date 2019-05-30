@@ -3,35 +3,71 @@
   <head>
     <meta charset="utf-8">
     <title>title</title>
-    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="style.css">
     <!-- <script src="script.js"></script> -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<script type="text/x-mathjax-config">
+	  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+	</script>
+	<script type="text/javascript"
+	  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
   </head>
   <body>
-    <div id="tester" style="width:500px;height:500px;"></div>
+    <div id="wrapper">
+    <div id="leftcolumn">
+        <div id="tester" style="width:500px;height:500px;"></div>
+    </div>
+    <div id="rightcolumn">
     <div>
+        $x_0 = $
+        <span id="x_0_label">
+        </span>
+        <br>
       <input type="range" name="x_0" min="1" max="50" 
              step="1" id="x_0">
     </div>
     <div>
+        $y_0 = $
+        <span id="y_0_label">
+        </span>
+        <br>
       <input type="range" name="y_0" min="1" max="50" 
              step="1" id="y_0">
     </div>
     <div>
+        $a = $
+        <span id="a_label" class="label">
+        </span>
+        <br>
       <input type="range" name="a" min="0.1" max="5" 
              step="0.1" id="a">
     </div>
     <div>
+        $b = $
+        <span id="b_label">
+        </span>
+        <br>
       <input type="range" name="b" min="0.1" max="5" 
              step="0.1" id="b">
     </div>
     <div>
+        $c = $
+        <span id="c_label">
+        </span>
+        <br>
       <input type="range" name="c" min="0.1" max="5" 
              step="0.1" id="c">
     </div>
     <div>
+        $d = $
+        <span id="d_label">
+        </span>
+        <br>
       <input type="range" name="d" min="0.1" max="5" 
              step="0.1" id="d">
+    </div>
+    </div>
     </div>
   </body>
 </html>
@@ -44,7 +80,7 @@ a = 4.5
 b = 2.2
 c = 0.4
 d = 1
-dt = 0.0005;
+dt = 0.001;
 i = 0;
 eps = 3;
 xs = [];
@@ -74,44 +110,62 @@ function redraw() {
     ys = [];
     slider = document.getElementById("x_0");
     x_0 = parseFloat(slider.value);
+    label = document.getElementById("x_0_label");
+    label.innerHTML = slider.value;
     slider = document.getElementById("y_0");
     y_0 = parseFloat(slider.value);
+    label = document.getElementById("y_0_label");
+    label.innerHTML = slider.value;
     slider = document.getElementById("a");
     a = parseFloat(slider.value);
+    label = document.getElementById("a_label");
+    label.innerHTML = slider.value;
     slider = document.getElementById("b");
     b = parseFloat(slider.value);
+    label = document.getElementById("b_label");
+    label.innerHTML = slider.value;
     slider = document.getElementById("c");
     c = parseFloat(slider.value);
+    label = document.getElementById("c_label");
+    label.innerHTML = slider.value;
     slider = document.getElementById("d");
     d = parseFloat(slider.value);
+    label = document.getElementById("d_label");
+    label.innerHTML = slider.value;
     xs.push(x_0);
     ys.push(y_0);
     i = 0;
     max_x = 50;
     max_y = 50;
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps) {
+    iters = 0;
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps && iters < 10000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
         xs.push(next[0]);
         ys.push(next[1]);
         ++i;
+        ++iters;
     }
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) > eps * eps && i < 100000) {
+    iters = 0;
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) > eps * eps && iters < 500000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
         xs.push(next[0]);
         ys.push(next[1]);
         ++i;
+        ++iters;
     }
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps) {
+    iters = 0;
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps && iters < 10000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
         xs.push(next[0]);
         ys.push(next[1]);
         ++i;
+        ++iters;
     }
     TESTER = document.getElementById('tester');
     layout = {
