@@ -67,6 +67,14 @@
       <input type="range" name="d" min="0.1" max="5" 
              step="0.1" id="d">
     </div>
+    <div>
+        $t = $
+        <span id="t_label">
+        </span>
+        <br>
+      <input type="range" name="d" min="0" max="5" 
+             step="0.001" id="t">
+    </div>
     </div>
     </div>
   </body>
@@ -132,6 +140,10 @@ function redraw() {
     d = parseFloat(slider.value);
     label = document.getElementById("d_label");
     label.innerHTML = slider.value;
+    slider = document.getElementById("t");
+    slider.value = "0";
+    label = document.getElementById("t_label");
+    label.innerHTML = "0";
     xs.push(x_0);
     ys.push(y_0);
     i = 0;
@@ -167,6 +179,7 @@ function redraw() {
         ++i;
         ++iters;
     }
+    slider.max = dt * xs.length;
     TESTER = document.getElementById('tester');
     layout = {
         xaxis: {
@@ -182,7 +195,20 @@ function redraw() {
             autoexpand: true
         }
     };
-    Plotly.react(TESTER, [{x: xs, y: ys}], layout);
+    Plotly.react(TESTER, [{x: xs, y: ys, showlegend: false}], layout);
+    Plotly.addTraces(TESTER, {x: [xs[0]], y: [ys[0]], showlegend: false, mode: 'markers', type: 'scatter', marker: {size: 14}});
+}
+
+function redraw_t_point() {
+    slider = document.getElementById("t");
+    label = document.getElementById("t_label");
+    label.innerHTML = slider.value;
+    t = parseFloat(slider.value);
+    index = Math.floor(t / dt);
+    index %= xs.length;
+    TESTER = document.getElementById('tester');
+    Plotly.deleteTraces(TESTER, -1);
+    Plotly.addTraces(TESTER, {x: [xs[index]], y: [ys[index]], showlegend: false, mode: 'markers', type: 'scatter', marker: {size: 14}});
 }
 
 slider = document.getElementById("x_0");
@@ -197,5 +223,7 @@ slider = document.getElementById("c");
 slider.oninput = redraw;
 slider = document.getElementById("d");
 slider.oninput = redraw;
+slider = document.getElementById("t");
+slider.oninput = redraw_t_point;
 redraw();
 </script>
