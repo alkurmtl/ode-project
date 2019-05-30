@@ -8,7 +8,31 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   </head>
   <body>
-    <div id="tester" style="width:600px;height:250px;"></div>
+    <div id="tester" style="width:500px;height:500px;"></div>
+    <div>
+      <input type="range" name="x_0" min="1" max="50" 
+             step="1" id="x_0">
+    </div>
+    <div>
+      <input type="range" name="y_0" min="1" max="50" 
+             step="1" id="y_0">
+    </div>
+    <div>
+      <input type="range" name="a" min="0.1" max="5" 
+             step="0.1" id="a">
+    </div>
+    <div>
+      <input type="range" name="b" min="0.1" max="5" 
+             step="0.1" id="b">
+    </div>
+    <div>
+      <input type="range" name="c" min="0.1" max="5" 
+             step="0.1" id="c">
+    </div>
+    <div>
+      <input type="range" name="d" min="0.1" max="5" 
+             step="0.1" id="d">
+    </div>
   </body>
 </html>
 
@@ -20,9 +44,9 @@ a = 4.5
 b = 2.2
 c = 0.4
 d = 1
-dt = 0.001;
+dt = 0.0005;
 i = 0;
-eps = 0.1;
+eps = 3;
 xs = [];
 ys = [];
 
@@ -45,23 +69,79 @@ function do_euler_step(x, y, i) {
     return [new_x, new_y];
 }
 
-xs.push(x_0);
-ys.push(y_0);
-while (i < 10 || Math.abs(xs[i] - x_0) > eps || Math.abs(ys[i] - y_0) > eps) {
-    next = do_euler_step(xs[i], ys[i], i);
-    xs.push(next[0]);
-    ys.push(next[1]);
-    ++i;
+function redraw() {
+    xs = [];
+    ys = [];
+    slider = document.getElementById("x_0");
+    x_0 = parseFloat(slider.value);
+    slider = document.getElementById("y_0");
+    y_0 = parseFloat(slider.value);
+    slider = document.getElementById("a");
+    a = parseFloat(slider.value);
+    slider = document.getElementById("b");
+    b = parseFloat(slider.value);
+    slider = document.getElementById("c");
+    c = parseFloat(slider.value);
+    slider = document.getElementById("d");
+    d = parseFloat(slider.value);
+    xs.push(x_0);
+    ys.push(y_0);
+    i = 0;
+    max_x = 50;
+    max_y = 50;
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps) {
+        next = do_euler_step(xs[i], ys[i], i);
+        max_x = Math.max(max_x, next[0])
+        max_y = Math.max(max_y, next[1]);
+        xs.push(next[0]);
+        ys.push(next[1]);
+        ++i;
+    }
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) > eps * eps && i < 100000) {
+        next = do_euler_step(xs[i], ys[i], i);
+        max_x = Math.max(max_x, next[0])
+        max_y = Math.max(max_y, next[1]);
+        xs.push(next[0]);
+        ys.push(next[1]);
+        ++i;
+    }
+    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps) {
+        next = do_euler_step(xs[i], ys[i], i);
+        max_x = Math.max(max_x, next[0])
+        max_y = Math.max(max_y, next[1]);
+        xs.push(next[0]);
+        ys.push(next[1]);
+        ++i;
+    }
+    TESTER = document.getElementById('tester');
+    layout = {
+        xaxis: {
+            range: [0, max_x],
+            title: 'x'
+        },
+        yaxis : {
+            range : [0, max_y],
+            title: 'y'
+        },
+        margin: {
+            t: 0,
+            autoexpand: true
+        }
+    };
+    Plotly.react(TESTER, [{x: xs, y: ys}], layout);
 }
-for (var kek = 0; kek < 10; ++kek) {
-    next = do_euler_step(xs[i], ys[i], i);
-    xs.push(next[0]);
-    ys.push(next[1]);
-    ++i;
-}
-TESTER = document.getElementById('tester');
-Plotly.plot( TESTER, [{
-x: xs,
-y: ys }], {
-margin: { t: 0 } } );
+
+slider = document.getElementById("x_0");
+slider.oninput = redraw;
+slider = document.getElementById("y_0");
+slider.oninput = redraw;
+slider = document.getElementById("a");
+slider.oninput = redraw;
+slider = document.getElementById("b");
+slider.oninput = redraw;
+slider = document.getElementById("c");
+slider.oninput = redraw;
+slider = document.getElementById("d");
+slider.oninput = redraw;
+redraw();
 </script>
