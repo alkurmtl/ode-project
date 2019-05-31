@@ -206,6 +206,27 @@ function do_euler_step(x, y, i) {
     return [new_x, new_y];
 }
 
+function dist2(x0, y0, x1, y1) {
+    return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
+}
+
+function dist_to_seg(x, y, x1, y1, x2, y2) {
+    v_x = x2 - x1;
+    v_y = y2 - y1;
+    l = 0;
+    r = 1;
+    for (var i = 0; i < 5; ++i) {
+        l1 = l + (r - l) / 3;
+        r1 = r - (r - l) / 3;
+        if (dist2(x, y, x1 + v_x * l1, y1 + v_y * l1) < dist2(x, y, x1 + v_x * r1, y1 + v_y * r1)) {
+            r = r1;
+        } else {
+            l = l1;
+        }
+    }
+    return dist2(x, y, x1 + v_x * (l + r) / 2, y1 + v_y * (l + r) / 2);
+}
+
 function redraw() {
     xs = [];
     ys = [];
@@ -244,7 +265,8 @@ function redraw() {
     max_x = 10;
     max_y = 10;
     iters = 0;
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps && iters < 10000) {
+    first = 0;
+    while (dist2(x_0, y_0, xs[i], ys[i]) <= eps * eps && iters < 10000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
@@ -253,8 +275,9 @@ function redraw() {
         ++i;
         ++iters;
     }
+    first = iters;
     iters = 0;
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) > eps * eps && iters < 500000) {
+    while ((dist_to_seg(x_0, y_0, xs[i], ys[i], xs[i - 1], ys[i - 1]) > eps * eps || iters < 100) && iters < 50000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
@@ -263,8 +286,9 @@ function redraw() {
         ++i;
         ++iters;
     }
+    console.log(iters);
     iters = 0;
-    while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps && iters < 10000) {
+    while (dist2(x_0, y_0, xs[i], ys[i]) <= eps * eps && iters < 10000) {
         next = do_euler_step(xs[i], ys[i], i);
         max_x = Math.max(max_x, next[0])
         max_y = Math.max(max_y, next[1]);
@@ -279,11 +303,11 @@ function redraw() {
     layout = {
         xaxis: {
             range: [0, width],
-            title: 'x'
+            title: 'Жертвы'
         },
         yaxis : {
             range : [0, width],
-            title: 'y'
+            title: 'Хищники'
         },
         margin: {
             t: 50,
@@ -298,7 +322,7 @@ function redraw() {
     for (var i = 0; i < ts.length; ++i) {
         ts[i] = i * dt;
     }
-    Plotly.react(FROM_T, [{x: ts, y: xs.concat(xs.concat(xs)), showlegend: false}, {x: ts, y: ys.concat(ys.concat(ys)), showlegend: false}], {xaxis: {range: [0, ts[ts.length - 1]]}});
+    Plotly.react(FROM_T, [{x: ts, y: xs.concat(xs.concat(xs)), name: 'Жертвы'}, {x: ts, y: ys.concat(ys.concat(ys)), name: 'Хищники'}], {xaxis: {range: [0, ts[ts.length - 1]]}});
 }
 
 function redraw_t_point() {
