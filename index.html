@@ -82,9 +82,12 @@
     
     
     
-    <div id="wrapper">
+    <div id="wrapper" align="center">
     <div id="leftcolumn">
         <div id="tester" style="width:500px;height:500px;"></div>
+    </div>
+    <div id="middlecolumn">
+        <div id="from_t" style="width:500px;height:500px;"></div>
     </div>
     <div id="rightcolumn">
     <div>
@@ -92,16 +95,16 @@
         <span id="x_0_label">
         </span>
         </p>
-      <input type="range" name="x_0" min="1" max="50" 
-             step="1" id="x_0">
+      <input type="range" name="x_0" min="1" max="10" 
+             step="0.1" id="x_0">
     </div>
     <div>
         $y_0 = $
         <span id="y_0_label">
         </span>
         </p>
-      <input type="range" name="y_0" min="1" max="50" 
-             step="1" id="y_0">
+      <input type="range" name="y_0" min="1" max="10" 
+             step="0.1" id="y_0">
     </div>
     <div>
         $\alpha = $
@@ -145,7 +148,7 @@
     </div>
     </div>
     </div>
-    <h2> Недостатки модели</h2> 
+    <h2> Недостатки модели</h2>
     <p>
     Если вы достаточно поигрались с параметрами на графике, то самый существенный недостаток системы уже должен был броситься вам в глаза: при достаточно больших начальных значениях большую часть времени фазовая кривая почти вплотную прижимается к осям $OX$ и $OY$, то есть размеры популяций в этот момент невероятно малы, и только по прошествии достаточного количества времени начинаются увеличиваться. В жизни так не бывает: размеры популяций дискретны, и ни в коем случае не опускаются до размеров порядка $10^{-18}$ (вместо этого скорее просто вымирают), что, тем не менее, происходит в системе Лотки-Вольтерры.
     В англоязычной литературе эта проблема называется "atto-fox problem", где "fox" - типичный хищник, а "atto" - приставка СИ для обозначения чисел порядка $10^{-18}$</p>
@@ -178,9 +181,11 @@ c = 0.4
 d = 1
 dt = 0.001;
 i = 0;
-eps = 3;
+eps = 0.01;
+eps_0 = 0.1;
 xs = [];
 ys = [];
+ts = [];
 
 function f_x(x, y) {
     return a * x - b * x * y;
@@ -234,9 +239,10 @@ function redraw() {
     label.innerHTML = "0";
     xs.push(x_0);
     ys.push(y_0);
+    ts.push(0);
     i = 0;
-    max_x = 50;
-    max_y = 50;
+    max_x = 10;
+    max_y = 10;
     iters = 0;
     while ((xs[i] - x_0) * (xs[i] - x_0) + (ys[i] - y_0) * (ys[i] - y_0) <= eps * eps && iters < 10000) {
         next = do_euler_step(xs[i], ys[i], i);
@@ -269,22 +275,30 @@ function redraw() {
     }
     slider.max = dt * xs.length;
     TESTER = document.getElementById('tester');
+    width = Math.max(max_x, max_y);
     layout = {
         xaxis: {
-            range: [0, max_x],
+            range: [0, width],
             title: 'x'
         },
         yaxis : {
-            range : [0, max_y],
+            range : [0, width],
             title: 'y'
         },
         margin: {
             t: 50,
             autoexpand: true
         }
-    };
+    }
     Plotly.react(TESTER, [{x: xs, y: ys, showlegend: false}], layout);
     Plotly.addTraces(TESTER, {x: [xs[0]], y: [ys[0]], showlegend: false, mode: 'markers', type: 'scatter', marker: {size: 14}});
+    FROM_T = document.getElementById('from_t');
+    ts = [];
+    ts.length = xs.length * 3;
+    for (var i = 0; i < ts.length; ++i) {
+        ts[i] = i * dt;
+    }
+    Plotly.react(FROM_T, [{x: ts, y: xs.concat(xs.concat(xs)), showlegend: false}, {x: ts, y: ys.concat(ys.concat(ys)), showlegend: false}], {xaxis: {range: [0, ts[ts.length - 1]]}});
 }
 
 function redraw_t_point() {
@@ -301,8 +315,10 @@ function redraw_t_point() {
 
 slider = document.getElementById("x_0");
 slider.oninput = redraw;
+slider.value = "3";
 slider = document.getElementById("y_0");
 slider.oninput = redraw;
+slider.value = "1";
 slider = document.getElementById("a");
 slider.oninput = redraw;
 slider = document.getElementById("b");

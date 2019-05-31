@@ -1,19 +1,29 @@
 #wrapper {
-     width: 1255px;
+     width: 1900px;
      margin: 0 auto;
 }
-#leftcolumn, #rightcolumn {
+#leftcolumn, #middlecolumn, #rightcolumn {
     border: 1px solid white;
-    float: left;
     min-height: 500px;
 }
 #leftcolumn {
+     float: left;
+     width: 500px;
+}
+#middlecolumn {
+     float: left;
      width: 500px;
 }
 #rightcolumn {
-     width: 750px;
+     width: 500px;
 }
 
 .label {
     width: 228px;
+}
+
+body {
+    font-family: helvetica;
+    margin-left: 100px;
+    margin-right: 100px;
 }
