@@ -346,7 +346,7 @@ function redraw_t_point() {
     index %= xs.length;
     TESTER = document.getElementById('tester');
     Plotly.deleteTraces(TESTER, -1);
-    Plotly.addTraces(TESTER, {x: [xs[index]], y: [ys[index]], showlegend: false, mode: 'markers', type: 'scatter', marker: {size: 14}});
+    Plotly.addTraces(TESTER, {x: [xs[index]], y: [ys[index]], showlegend: false, mode: 'markers', type: 'scatter', marker: {size: 10}});
 }
 
 slider = document.getElementById("x_0");
